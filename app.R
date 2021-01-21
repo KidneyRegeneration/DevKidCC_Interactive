@@ -18,9 +18,35 @@ names(a) <- c("Size of ident", "% ident cells with expression")
 
 ui <- dashboardPage(skin = "green",
   dashboardHeader(title = "DevKidCC Kidney Organoid Gene Explorer",
-                  titleWidth = 450),
+                  titleWidth = 450,
+                  dropdownMenu( type = 'notifications',
+                                      
+                                      icon = icon("info-circle"),
+                                      messageItem(
+                                        from = 'Github-Shiny',
+                                        message = "",
+                                        icon = icon("github"),
+                                        href = "https://github.com/KidneyRegeneration/DevKidCC_Interactive"
+                                      ),
+                                      messageItem(
+                                        from = 'Github-DevKidCC',
+                                        message = "",
+                                        icon = icon("github"),
+                                        href = "https://github.com/KidneyRegeneration/DevKidCC"
+                                      ),
+                                      messageItem(
+                                        from = 'Manuscript',
+                                        message = "",
+                                        icon = icon("book"),
+                                        href = "https://www.biorxiv.org/content/10.1101/2021.01.20.427346v1"
+                                      )
+                  )),
   
   dashboardSidebar(width = 350,
+                   sidebarMenu(
+                     menuItem("Plots", tabName = "plots"),
+                     menuItem("Sample Info", tabName = "samples")
+                   ),
                    
     selectInput('features', 'Genes', genes, multiple = T, selected = c("DAPL1", "LYPD1", "JAG1",
                                                                        "GATA3", "SLC12A1", "HNF4A",
@@ -50,14 +76,31 @@ ui <- dashboardPage(skin = "green",
   ),
   
   dashboardBody(
+    tabItems(
+      tabItem(tabName = "plots",
+              h3("Plots"),
               fluidRow(
                 column(width = 12,
                        plotOutput("distPlot", height = 1200),
                 ),
-              
+                
+              )
+      ),
+      tabItem(tabName = "samples",
+              h3("Table 1 (Wilson et al. 2021, bioRxiv)"),
+              fluidRow(
+                column(width = 12,
+                       imageOutput("sampleinfo"),
+                ),
+                
+              )
+      )
     )
+    
+    
   )
 )
+
 
 
 server <- function(input, output) {
@@ -78,6 +121,16 @@ server <- function(input, output) {
                    dot.scale = input$dotsize,
                    samples = input$samples,
                    columns = input$columns)
+  })
+  
+  output$sampleinfo <- renderImage({
+    
+    # Return a list containing the filename
+    list(src = "data/SampleTable.jpg",
+         contentType = 'image/jpg',
+         #width = 600,
+         #height = 300,
+         alt = "This is alternate text")
   })
 }
 
